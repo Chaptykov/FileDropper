@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File preview demo</title>
+
+    <style>
+    .file {
+        padding: 20px 0 14px;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        color: #898e94;
+        text-align: center;
+        transition:
+            color .2s ease,
+            border-color .2s ease,
+            background .2s ease;
+        }
+    .file:hover {
+        border: 2px dashed #898e94;
+        background: rgba(255, 255, 255, .5);
+        color: #666;
+        }
+        .file__title {
+            margin: 0 0 10px;
+            font: 18px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            }
+        .file__ext {
+            font: 13px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            }
+            .file__ext-text {
+                margin: 0 0 10px;
+                }
+    </style>
+</head>
+<body>
+
+<div class="file">
+    <div class="file__title">Перетащите сюда файл с изображением</div>
+    <div class="file__ext">
+        <div class="file__ext-text">
+            <abbr>PNG</abbr>, <abbr>JPG</abbr> или&nbsp;<abbr>GIF</abbr>, не&nbsp;более 100&nbsp;КБ
+        </div>
+    </div>
+</div>
+
+<div class="preview"></div>
+
+<script src="../../FileDropper.js"></script>
+<script>
+    var element = document.getElementsByClassName('file')[0],
+        preview = document.getElementsByClassName('preview')[0];
+
+    new FileDropper(element, {
+
+        maxFileSize: 100 * 1024,
+        onError: function(errors) {
+            alert(errors[0].message);
+        },
+        onComplete: function(files) {
+            for (var i = 0; i < files.length; i++) {
+                showPreview(files[i]);
+            }
+        }
+    });
+
+    function showPreview(file) {
+        if (typeof(window.FileReader) == 'undefined') {
+            throw new Error('FileReader not supported.');
+        }
+
+        var reader = new FileReader();
+
+        reader.onload = function(event) {
+            var img = new Image(),
+                canvas = document.createElement('canvas'),
+                ctx = canvas.getContext('2d');
+
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+            };
+
+            img.src = event.target.result;
+            preview.appendChild(canvas);
+        }
+
+        reader.readAsDataURL(file);
+    }
+</script>
+
+</body>
+</html>
